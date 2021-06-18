@@ -1,21 +1,56 @@
 import { Teclado } from "./componentes/Teclado";
 import { Info } from "./componentes/Info";
+import { Display } from "./componentes/Display";
+import { Acciones } from "./componentes/Acciones";
+import { useState, useRef } from "react";
+function App() {
 
+  const [numero, setNumero] = useState("");
+  const [llamando, setLlamando] = useState(false);
+  const timer = useRef(null);
+  const numeroCompleto = numero.length === 9;
 
-function Teléfono() {
+  const llamar = () => {
+    if (!numeroCompleto) {
+      return;
+    } setLlamando(true);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      colgar();
+    }, 5000);
+  };
+  const colgar = () => {
+    clearTimeout(timer.current);
+    setNumero("");
+    setLlamando(false);
+  };
+  const añadirDigito = (digito) => {
+    if (numeroCompleto) {
+      return;
+    } setNumero(numero + digito);
+  };
+  const borrarUltimoDigito = () => {
+    setNumero(numero.slice(0, -1));
+  };
+
 
   return (
     <div className="contenedor">
-      <Info activarInfo={activarInfo} />
+      <Info mostrarMensaje={llamando} />
       <main className="telefono">
-        <Teclado desactivar={activarInfo} marcar={marcar} borrar={borrar} />
+        <Teclado
+          llamando={llamando}
+          añadirDigito={añadirDigito}
+          borrarUltimoDigito={borrarUltimoDigito}
+        />
         <div className="acciones">
-          <span className="numero">667359961</span>
-          <!-- El botón de llamar debe tener la clase "activo" cuando -->
-          <!-- el número de teléfono tiene 9 cifras -->
-          <a href="#" className="llamar">Llamar</a>
-          <!-- Sólo se tiene que ver un botón u otro -->
-          <a href="#" className="colgar activo">Colgar</a>
+          <Display numerosMarcados={numero} />
+          <Acciones
+            activo={numeroCompleto}
+            llamando={llamando}
+            colgar={colgar}
+            llamar={llamar}
+          />
         </div>
       </main>
     </div>
